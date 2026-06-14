@@ -5,21 +5,14 @@ export default class BootScene extends Phaser.Scene {
     super({ key: 'BootScene' });
   }
 
-  preload() {
-    this.load.image('grass_tex', 'assets/tilesets/grass_flat.png');
-    this.load.image('dirt_tex', 'assets/tilesets/dirt_flat.png');
-  }
-
   create() {
-    // Create tile textures from loaded images using canvas
-    this.makeTile('tile_grass', 'grass_tex', 0x4a7d2f);
-    this.makeTile('tile_dirt', 'dirt_tex', 0x6d4c41);
-
-    // Placeholders
-    this.makePlaceholderTile('tile_stone', 0x9e9e9e, 0x808080);
-    this.makePlaceholderTile('tile_water', 0x4fc3f7, 0x29b6f6);
-    this.makePlaceholderTile('tile_tall_grass', 0x4a9f3b, 0x3a8a2e);
-    this.makePlaceholderTile('tile_flowers', 0x6abf4b, 0x5aa83e);
+    // Clean colored diamond tiles - Pokémon GBA style
+    this.makeTile('tile_grass', 0x5cb85c, 0x4a9e4a);       // bright green
+    this.makeTile('tile_dirt', 0xc49a6c, 0xa87d52);         // warm brown
+    this.makeTile('tile_stone', 0xb0b0b0, 0x909090);        // light gray
+    this.makeTile('tile_water', 0x5bc0de, 0x3aafcf);        // light blue
+    this.makeTile('tile_tall_grass', 0x3d8b3d, 0x2d6e2d);   // dark green
+    this.makeTile('tile_flowers', 0x5cb85c, 0x4a9e4a);      // same as grass base
 
     this.generatePlaceholderCharacter();
     this.generatePlaceholderObjects();
@@ -27,46 +20,11 @@ export default class BootScene extends Phaser.Scene {
     this.scene.start('GameScene');
   }
 
-  makeTile(key, textureKey, borderColor) {
-    const w = 64, h = 32;
-    const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-
-    // Clip to diamond
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w, h / 2);
-    ctx.lineTo(w / 2, h);
-    ctx.lineTo(0, h / 2);
-    ctx.closePath();
-    ctx.clip();
-
-    // Draw texture filling the diamond
-    const source = this.textures.get(textureKey).getSourceImage();
-    ctx.drawImage(source, 0, 0, w, h);
-
-    ctx.restore();
-
-    // Border
-    ctx.strokeStyle = `rgba(${(borderColor >> 16) & 0xff}, ${(borderColor >> 8) & 0xff}, ${borderColor & 0xff}, 0.4)`;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w, h / 2);
-    ctx.lineTo(w / 2, h);
-    ctx.lineTo(0, h / 2);
-    ctx.closePath();
-    ctx.stroke();
-
-    this.textures.addCanvas(key, canvas);
-  }
-
-  makePlaceholderTile(key, fill, stroke) {
+  makeTile(key, fill, stroke) {
     const w = 64, h = 32;
     const g = this.add.graphics();
+
+    // Fill diamond
     g.fillStyle(fill, 1);
     g.beginPath();
     g.moveTo(w / 2, 0);
@@ -75,6 +33,8 @@ export default class BootScene extends Phaser.Scene {
     g.lineTo(0, h / 2);
     g.closePath();
     g.fillPath();
+
+    // Border
     g.lineStyle(1, stroke, 1);
     g.beginPath();
     g.moveTo(w / 2, 0);
@@ -83,6 +43,7 @@ export default class BootScene extends Phaser.Scene {
     g.lineTo(0, h / 2);
     g.closePath();
     g.strokePath();
+
     g.generateTexture(key, w, h);
     g.destroy();
   }
@@ -109,27 +70,34 @@ export default class BootScene extends Phaser.Scene {
   }
 
   generatePlaceholderObjects() {
+    // Tree
     const g = this.add.graphics();
     g.fillStyle(0x6d4c41, 1); g.fillRect(12, 30, 8, 18);
-    g.fillStyle(0x4caf50, 1); g.fillCircle(16, 20, 14);
+    g.fillStyle(0x4caf50, 1); g.fillCircle(16, 22, 14);
+    g.fillStyle(0x66bb6a, 1); g.fillCircle(16, 16, 10);
     g.generateTexture('tree', 32, 48); g.destroy();
 
+    // Rock
     const g2 = this.add.graphics();
     g2.fillStyle(0x9e9e9e, 1); g2.fillCircle(12, 12, 10);
-    g2.fillStyle(0x757575, 1); g2.fillCircle(18, 14, 7);
+    g2.fillStyle(0xbdbdbd, 1); g2.fillCircle(10, 10, 5);
     g2.generateTexture('rock', 24, 24); g2.destroy();
 
+    // Flowers
     const g3 = this.add.graphics();
-    g3.fillStyle(0xf44336, 1); g3.fillCircle(6, 6, 4);
-    g3.fillStyle(0xffeb3b, 1); g3.fillCircle(16, 8, 3);
-    g3.fillStyle(0x4caf50, 1); g3.fillRect(5, 10, 2, 6); g3.fillRect(15, 11, 2, 5);
-    g3.generateTexture('flowers', 24, 18); g3.destroy();
+    g3.fillStyle(0xf44336, 1); g3.fillCircle(6, 6, 3);
+    g3.fillStyle(0xffeb3b, 1); g3.fillCircle(14, 8, 3);
+    g3.fillStyle(0xe91e63, 1); g3.fillCircle(10, 4, 2);
+    g3.generateTexture('flowers', 20, 14); g3.destroy();
 
+    // Building - Pokémon Center style
     const g4 = this.add.graphics();
-    g4.fillStyle(0x8d6e63, 1); g4.fillRect(0, 20, 48, 30);
-    g4.fillStyle(0xd32f2f, 1);
-    g4.beginPath(); g4.moveTo(0, 20); g4.lineTo(24, 0); g4.lineTo(48, 20); g4.closePath(); g4.fillPath();
-    g4.fillStyle(0x4e342e, 1); g4.fillRect(18, 32, 12, 18);
+    g4.fillStyle(0xffffff, 1); g4.fillRect(0, 16, 48, 32); // white walls
+    g4.fillStyle(0xd32f2f, 1); // red roof
+    g4.beginPath(); g4.moveTo(-4, 16); g4.lineTo(24, -2); g4.lineTo(52, 16); g4.closePath(); g4.fillPath();
+    g4.fillStyle(0xf44336, 1); g4.fillRect(18, 30, 12, 18); // red door
+    g4.fillStyle(0xd32f2f, 1); g4.fillRect(8, 22, 8, 8); // red accent left
+    g4.fillRect(32, 22, 8, 8); // red accent right
     g4.generateTexture('building', 48, 50); g4.destroy();
   }
 }
