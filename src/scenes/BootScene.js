@@ -6,13 +6,16 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load pre-processed diamond tiles (clipped + transparent bg)
-    this.load.image('tile_grass', 'assets/tilesets/grass_diamond.png');
-    this.load.image('tile_dirt', 'assets/tilesets/dirt_diamond.png');
+    this.load.image('grass_tex', 'assets/tilesets/grass_flat.png');
+    this.load.image('dirt_tex', 'assets/tilesets/dirt_flat.png');
   }
 
   create() {
-    // Placeholders for tiles we don't have yet
+    // Create tile textures from loaded images using canvas
+    this.makeTile('tile_grass', 'grass_tex', 0x4a7d2f);
+    this.makeTile('tile_dirt', 'dirt_tex', 0x6d4c41);
+
+    // Placeholders
     this.makePlaceholderTile('tile_stone', 0x9e9e9e, 0x808080);
     this.makePlaceholderTile('tile_water', 0x4fc3f7, 0x29b6f6);
     this.makePlaceholderTile('tile_tall_grass', 0x4a9f3b, 0x3a8a2e);
@@ -24,8 +27,45 @@ export default class BootScene extends Phaser.Scene {
     this.scene.start('GameScene');
   }
 
+  makeTile(key, textureKey, borderColor) {
+    const w = 64, h = 32;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+
+    // Clip to diamond
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(w / 2, 0);
+    ctx.lineTo(w, h / 2);
+    ctx.lineTo(w / 2, h);
+    ctx.lineTo(0, h / 2);
+    ctx.closePath();
+    ctx.clip();
+
+    // Draw texture filling the diamond
+    const source = this.textures.get(textureKey).getSourceImage();
+    ctx.drawImage(source, 0, 0, w, h);
+
+    ctx.restore();
+
+    // Border
+    ctx.strokeStyle = `rgba(${(borderColor >> 16) & 0xff}, ${(borderColor >> 8) & 0xff}, ${borderColor & 0xff}, 0.4)`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(w / 2, 0);
+    ctx.lineTo(w, h / 2);
+    ctx.lineTo(w / 2, h);
+    ctx.lineTo(0, h / 2);
+    ctx.closePath();
+    ctx.stroke();
+
+    this.textures.addCanvas(key, canvas);
+  }
+
   makePlaceholderTile(key, fill, stroke) {
-    const w = 64, h = 48;
+    const w = 64, h = 32;
     const g = this.add.graphics();
     g.fillStyle(fill, 1);
     g.beginPath();
