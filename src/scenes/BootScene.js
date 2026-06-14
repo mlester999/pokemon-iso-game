@@ -6,18 +6,13 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('grass_tex', 'assets/tilesets/grass_tile.png');
-    this.load.image('dirt_tex', 'assets/tilesets/dirt_tile.png');
+    // Load pre-processed diamond tiles (clipped + transparent bg)
+    this.load.image('tile_grass', 'assets/tilesets/grass_diamond.png');
+    this.load.image('tile_dirt', 'assets/tilesets/dirt_diamond.png');
   }
 
   create() {
-    // Grass: use real texture as diamond tile
-    this.makeGrassTile('tile_grass');
-
-    // Dirt: use real texture
-    this.makeTextureTile('tile_dirt', 'dirt_tex');
-
-    // Placeholders for everything else
+    // Placeholders for tiles we don't have yet
     this.makePlaceholderTile('tile_stone', 0x9e9e9e, 0x808080);
     this.makePlaceholderTile('tile_water', 0x4fc3f7, 0x29b6f6);
     this.makePlaceholderTile('tile_tall_grass', 0x4a9f3b, 0x3a8a2e);
@@ -27,81 +22,6 @@ export default class BootScene extends Phaser.Scene {
     this.generatePlaceholderObjects();
 
     this.scene.start('GameScene');
-  }
-
-  makeGrassTile(key) {
-    const w = 64, h = 48;
-    const g = this.add.graphics();
-
-    // Draw diamond filled with grass texture
-    const tex = this.textures.get('grass_tex');
-    const source = tex.getSourceImage();
-
-    // Create a canvas to draw the masked tile
-    const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-
-    // Draw grass texture scaled to fill
-    ctx.drawImage(source, 0, 0, w, h);
-
-    // Clip to diamond shape
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w, h / 2);
-    ctx.lineTo(w / 2, h);
-    ctx.lineTo(0, h / 2);
-    ctx.closePath();
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-
-    // Draw border
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = 'rgba(74, 125, 47, 0.6)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w, h / 2);
-    ctx.lineTo(w / 2, h);
-    ctx.lineTo(0, h / 2);
-    ctx.closePath();
-    ctx.stroke();
-
-    // Add as Phaser texture
-    this.textures.addCanvas(key, canvas);
-    g.destroy();
-  }
-
-  makeTextureTile(key, textureKey) {
-    const w = 64, h = 48;
-    const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    const source = this.textures.get(textureKey).getSourceImage();
-    ctx.drawImage(source, 0, 0, w, h);
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w, h / 2);
-    ctx.lineTo(w / 2, h);
-    ctx.lineTo(0, h / 2);
-    ctx.closePath();
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = 'rgba(74, 125, 47, 0.6)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w, h / 2);
-    ctx.lineTo(w / 2, h);
-    ctx.lineTo(0, h / 2);
-    ctx.closePath();
-    ctx.stroke();
-    this.textures.addCanvas(key, canvas);
   }
 
   makePlaceholderTile(key, fill, stroke) {
