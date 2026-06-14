@@ -11,7 +11,7 @@ const T = {
 };
 
 const TILE_W = 64;
-const TILE_H = 32;
+const TILE_H = 48;
 
 const TILE_KEYS = {
   [T.GRASS]: 'tile_grass',
